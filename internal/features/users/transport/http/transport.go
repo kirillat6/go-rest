@@ -8,7 +8,7 @@ import (
 	core_http_server "github.com/kirillat6/go-rest/internal/core/transport/http/server"
 )
 
-type UsersHTTPHandler struct{
+type UsersHTTPHandler struct {
 	usersService UsersService
 }
 
@@ -16,7 +16,7 @@ type UsersService interface {
 	CreateUser(
 		ctx context.Context,
 		user domain.User,
-	) (domain.User,error)
+	) (domain.User, error)
 	GetUsers(
 		ctx context.Context,
 		limit *int,
@@ -34,7 +34,7 @@ type UsersService interface {
 		ctx context.Context,
 		id int,
 		patch domain.UserPatch,
-	) (domain.User,error)
+	) (domain.User, error)
 }
 
 func NewUsersHTTPHandler(usersService UsersService) *UsersHTTPHandler {
@@ -46,28 +46,28 @@ func NewUsersHTTPHandler(usersService UsersService) *UsersHTTPHandler {
 func (h *UsersHTTPHandler) Routes() []core_http_server.Route {
 	return []core_http_server.Route{
 		{
-			Method: http.MethodPost,
-			Path: "/users",
+			Method:  http.MethodPost,
+			Path:    "/users",
 			Handler: h.CreateUser,
 		},
 		{
-			Method: http.MethodGet,
-			Path: "/users",
+			Method:  http.MethodGet,
+			Path:    "/users",
 			Handler: h.GetUsers,
 		},
 		{
-			Method: http.MethodGet,
-			Path: "/users/{id}",
+			Method:  http.MethodGet,
+			Path:    "/users/{id}",
 			Handler: h.GetUser,
 		},
 		{
-			Method: http.MethodDelete,
-			Path: "/users/{id}",
+			Method:  http.MethodDelete,
+			Path:    "/users/{id}",
 			Handler: h.DeleteUser,
 		},
 		{
-			Method: http.MethodPatch,
-			Path: "/users/{id}",
+			Method:  http.MethodPatch,
+			Path:    "/users/{id}",
 			Handler: h.PatchUser,
 		},
 	}

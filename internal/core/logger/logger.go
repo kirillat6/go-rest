@@ -11,13 +11,27 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+type loggerContextKey struct{}
+
+var (
+	key = loggerContextKey{}
+)
+
 type Logger struct {
 	*zap.Logger
 	file *os.File
 }
 
+func ToContext(ctx context.Context, log *Logger) context.Context {
+	return context.WithValue(
+		ctx,
+		key,
+		log,
+	)
+}
+
 func FromContext(ctx context.Context) *Logger {
-	log, ok := ctx.Value("log").(*Logger)
+	log, ok := ctx.Value(key).(*Logger)
 	if !ok {
 		panic("no logger in context")
 	}
@@ -41,7 +55,7 @@ func NewLogger(config Config) (*Logger, error) {
 		fmt.Sprintf("%s.log", timestamp),
 	)
 
-	logFile, err := os.OpenFile(logFilePath, os.O_CREATE | os.O_WRONLY, 0644)
+	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, fmt.Errorf("open log file: %w", err)
 	}
@@ -57,14 +71,14 @@ func NewLogger(config Config) (*Logger, error) {
 	zapLogger := zap.New(core, zap.AddCaller())
 	return &Logger{
 		Logger: zapLogger,
-		file: logFile,
+		file:   logFile,
 	}, nil
 }
 
 func (l *Logger) With(field ...zap.Field) *Logger {
 	return &Logger{
 		Logger: l.Logger.With(field...),
-		file: l.file,
+		file:   l.file,
 	}
 }
 

@@ -11,7 +11,7 @@ func (r *UsersRepository) GetUsers(
 	ctx context.Context,
 	limit *int,
 	offset *int,
-)([]domain.User, error) {
+) ([]domain.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
@@ -20,9 +20,9 @@ func (r *UsersRepository) GetUsers(
 	FROM todoapp.users
 	ORDER BY id ASC
 	LIMIT $1
-	OFFSET $2
+	OFFSET $2;
 	`
-	rows, err := r.pool.Query(ctx, query,limit, offset)
+	rows, err := r.pool.Query(ctx, query, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("select users: %w", err)
 	}

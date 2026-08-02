@@ -1,4 +1,4 @@
-package core_http_utils
+package core_http_request
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ func GetIntPathValue(r *http.Request, key string) (int, error) {
 			core_errors.ErrInvalidArgument,
 		)
 	}
-	
+
 	val, err := strconv.Atoi(pathValue)
 	if err != nil {
 		return 0, fmt.Errorf(

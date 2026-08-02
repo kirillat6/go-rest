@@ -15,18 +15,18 @@ func (r *UsersRepository) DeleteUser(
 	defer close()
 	query := `
 	DELETE FROM todoapp.users 
-	WHERE ID = $1
+	WHERE ID = $1;
 	`
 	tag, err := r.pool.Exec(ctx, query, id)
 	if err != nil {
-		return fmt.Errorf("exec query: %w",err)
+		return fmt.Errorf("exec query: %w", err)
 	}
 	if tag.RowsAffected() == 0 {
 		return fmt.Errorf(
-			"user with id='%d':%w", 
-			id, 
+			"user with id='%d':%w",
+			id,
 			core_errors.ErrNotFound,
 		)
-	}	
+	}
 	return nil
 }

@@ -1,4 +1,4 @@
-package core_postgres_pool
+package core_pgx_pool
 
 import (
 	"fmt"
@@ -8,11 +8,11 @@ import (
 )
 
 type Config struct {
-	Host 	 string 	   `envconfig:"HOST" 	 required:"true"`
-	Port 	 string 	   `envconfig:"PORT" 	 default:"5432"`
-	User 	 string 	   `envconfig:"USER" 	 required:"true"`
-	Password string 	   `envconfig:"PASSWORD" required:"true"`
-	Database string 	   `envconfig:"DB"       required:"true"`
+	Host     string        `envconfig:"HOST" 	 required:"true"`
+	Port     string        `envconfig:"PORT" 	 default:"5432"`
+	User     string        `envconfig:"USER" 	 required:"true"`
+	Password string        `envconfig:"PASSWORD" required:"true"`
+	Database string        `envconfig:"DB"       required:"true"`
 	Timeout  time.Duration `envconfig:"TIMEOUT"  required:"true"`
 }
 
@@ -37,4 +37,3 @@ func NewConfigMust() Config {
 
 	return config
 }
-
