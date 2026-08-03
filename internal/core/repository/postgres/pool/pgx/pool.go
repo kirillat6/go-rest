@@ -10,7 +10,7 @@ import (
 )
 
 type Pool struct {
-	*pgxpool.Pool
+	pgxpool.Pool
 	opTimeout time.Duration
 }
 
@@ -42,7 +42,7 @@ func NewPool(
 	}
 
 	return &Pool{
-		Pool:      pool,
+		Pool:      *pool,
 		opTimeout: config.Timeout,
 	}, nil
 }
