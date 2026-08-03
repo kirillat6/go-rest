@@ -9,9 +9,9 @@ type UsersRepository struct {
 }
 
 func NewUsersRepository(
-	pool core_pgx_pool.Pool,
+	pool *core_pgx_pool.Pool,
 ) *UsersRepository {
 	return &UsersRepository{
-		pool: pool,
+		pool: *pool,
 	}
 }
