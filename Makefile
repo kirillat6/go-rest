@@ -3,7 +3,7 @@ export
 
 export PROJECT_ROOT=${shell pwd}
 
-env-containers:
+ps:
 	@docker compose ps -a
 
 env-up:
@@ -70,3 +70,6 @@ logs-cleanup:
 	else \
 		echo "Очистка логов отменена"; \
 	fi
+
+todoapp-deploy:
+	@docker compose up -d --build todoapp
