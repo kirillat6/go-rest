@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/kirillat6/go-rest/docs"
 	core_config "github.com/kirillat6/go-rest/internal/core/config"
 	core_logger "github.com/kirillat6/go-rest/internal/core/logger"
 	core_pgx_pool "github.com/kirillat6/go-rest/internal/core/repository/postgres/pool/pgx"
@@ -22,9 +23,17 @@ import (
 	users_postgres_repository "github.com/kirillat6/go-rest/internal/features/users/repository/postgres"
 	users_service "github.com/kirillat6/go-rest/internal/features/users/service"
 	users_transport_http "github.com/kirillat6/go-rest/internal/features/users/transport/http"
+	web_repository_filesystem "github.com/kirillat6/go-rest/internal/features/web/repository/file_system"
+	web_service "github.com/kirillat6/go-rest/internal/features/web/service"
+	web_transport_http "github.com/kirillat6/go-rest/internal/features/web/transport/http"
 	"go.uber.org/zap"
 )
 
+// @title 		Golang Todo API
+// @version 	1.0
+// @description Todo Application REST-API scheme
+// @host 		127.0.0.1:5050
+// @BasePath 	/api/v1
 func main() {
 	cfg := core_config.NewConfigMust()
 	time.Local = cfg.Timezone
@@ -75,11 +84,18 @@ func main() {
 	statisticsService := statistics_service.NewStatisticsService(statisticsRepository)
 	statisticsTransportHTTP := statistics_transport_http.NewStatisticsHTTPHandler(statisticsService)
 
+	logger.Debug("initializing feature", zap.String("feature", "web"))
+
+	webRepository := web_repository_filesystem.NewWebRepository()
+	webService := web_service.NewWebService(webRepository)
+	webTransportHTTP := web_transport_http.NewWebHTTPHandler(webService)
+
 	logger.Debug("initializing HTTP server")
 
 	httpServer := core_http_server.NewHTTPServer(
 		core_http_server.NewConfigMust(),
 		logger,
+		core_http_middleware.CORS(),
 		core_http_middleware.RequestID(),
 		core_http_middleware.Logger(logger),
 		core_http_middleware.Trace(),
@@ -90,8 +106,12 @@ func main() {
 	apiVersionRouterV1.RegisterRoutes(usersTransportHTTP.Routes()...)
 	apiVersionRouterV1.RegisterRoutes(tasksTransportHTTP.Routes()...)
 	apiVersionRouterV1.RegisterRoutes(statisticsTransportHTTP.Routes()...)
+	apiVersionRouterV1.RegisterRoutes(webTransportHTTP.Routes()...)
 
 	httpServer.RegisterAPIRouters(apiVersionRouterV1)
+
+	httpServer.RegisterRoutes(webTransportHTTP.Routes()...)
+	httpServer.RegisterSwagger()
 
 	if err := httpServer.Run(ctx); err != nil {
 		logger.Error("HTTP server run error", zap.Error(err))

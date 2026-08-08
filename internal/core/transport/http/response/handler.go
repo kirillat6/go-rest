@@ -13,10 +13,10 @@ import (
 
 type HTTPResponseHandler struct {
 	log *core_logger.Logger
-	rw http.ResponseWriter
+	rw  http.ResponseWriter
 }
 
-func (h *HTTPResponseHandler)JSONResponse(
+func (h *HTTPResponseHandler) JSONResponse(
 	responseBody any,
 	statusCode int,
 ) {
@@ -30,17 +30,17 @@ func (h *HTTPResponseHandler)JSONResponse(
 func NewHTTPResponseHandler(
 	log *core_logger.Logger,
 	rw http.ResponseWriter,
-	) *HTTPResponseHandler {
+) *HTTPResponseHandler {
 	return &HTTPResponseHandler{
 		log: log,
-		rw: rw,
+		rw:  rw,
 	}
 }
 
 func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	var (
 		statusCode int
-		logFunc func(string, ...zap.Field)
+		logFunc    func(string, ...zap.Field)
 	)
 
 	switch {
@@ -58,9 +58,9 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 		logFunc = h.log.Error
 	}
 
-	logFunc(msg,zap.Error(err))
+	logFunc(msg, zap.Error(err))
 
-	h.errorResponse(statusCode,err, msg)
+	h.errorResponse(statusCode, err, msg)
 }
 
 func (h *HTTPResponseHandler) NoContentResponse() {
@@ -75,14 +75,24 @@ func (h *HTTPResponseHandler) PanicResponse(p any, msg string) {
 	h.errorResponse(statusCode, err, msg)
 }
 
+func (h *HTTPResponseHandler) HTMLResponse(
+	html []byte,
+) {
+	h.rw.WriteHeader(http.StatusOK)
+	h.rw.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if _, err := h.rw.Write(html); err != nil {
+		h.log.Error("write HTML HTTP response", zap.Error(err))
+	}
+}
+
 func (h *HTTPResponseHandler) errorResponse(
 	statusCode int,
 	err error,
 	msg string,
 ) {
-	response := map[string]string{
-		"message": msg,
-		"error": err.Error(),
+	response := ErrorResponse{
+		Error:   err.Error(),
+		Message: msg,
 	}
 
 	h.JSONResponse(
