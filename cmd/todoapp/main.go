@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/kirillat6/go-rest/docs"
 	core_config "github.com/kirillat6/go-rest/internal/core/config"
 	core_logger "github.com/kirillat6/go-rest/internal/core/logger"
 	core_pgx_pool "github.com/kirillat6/go-rest/internal/core/repository/postgres/pool/pgx"
@@ -25,6 +26,11 @@ import (
 	"go.uber.org/zap"
 )
 
+// @title 		Golang Todo API
+// @version 	1.0
+// @description Todo Application REST-API scheme
+// @host 		127.0.0.1:5050
+// @BasePath 	/api/v1
 func main() {
 	cfg := core_config.NewConfigMust()
 	time.Local = cfg.Timezone
@@ -80,6 +86,7 @@ func main() {
 	httpServer := core_http_server.NewHTTPServer(
 		core_http_server.NewConfigMust(),
 		logger,
+		core_http_middleware.CORS(),
 		core_http_middleware.RequestID(),
 		core_http_middleware.Logger(logger),
 		core_http_middleware.Trace(),
@@ -92,6 +99,8 @@ func main() {
 	apiVersionRouterV1.RegisterRoutes(statisticsTransportHTTP.Routes()...)
 
 	httpServer.RegisterAPIRouters(apiVersionRouterV1)
+
+	httpServer.RegisterSwagger()
 
 	if err := httpServer.Run(ctx); err != nil {
 		logger.Error("HTTP server run error", zap.Error(err))

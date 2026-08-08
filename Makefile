@@ -76,3 +76,11 @@ todoapp-deploy:
 
 todoapp-undeploy:
 	@docker compose down todoapp
+
+swagger-gen:
+	@podman-compose run --rm swagger \
+		init \
+		-g cmd/todoapp/main.go \
+		-o docs \
+		--parseInternal \
+		--parseDependency

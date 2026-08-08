@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/kirillat6/go-rest/docs"
 	core_logger "github.com/kirillat6/go-rest/internal/core/logger"
 	core_http_middleware "github.com/kirillat6/go-rest/internal/core/transport/http/middleware"
+	_ "github.com/swaggo/http-swagger"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"go.uber.org/zap"
 )
 
@@ -42,6 +45,24 @@ func (s *HTTPServer) RegisterAPIRouters(routers ...*APIVersionRouter) {
 		)
 
 	}
+}
+
+func (s *HTTPServer) RegisterSwagger() {
+	s.mux.Handle(
+		"/swagger/",
+		httpSwagger.Handler(
+			httpSwagger.URL("/swagger/doc.json"),
+			httpSwagger.DefaultModelsExpandDepth(-1),
+		),
+	)
+	s.mux.HandleFunc(
+		"/swagger/doc.json",
+		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(docs.SwaggerInfo.ReadDoc()))
+		},
+	)
 }
 
 func (s *HTTPServer) Run(ctx context.Context) error {
